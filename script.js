@@ -255,7 +255,7 @@ async function buscarCep() {
   const cepLimpo = limparCep(inputCep.value);
 
   if (!validarCep(cepLimpo)) {
-    renderizarErro("Digite um CEP válido com 8 números.");
+    renderizarErro("Digite um CEP válido no formato 00000-000.");
     return;
   }
 
@@ -264,11 +264,11 @@ async function buscarCep() {
 
   try {
     const resp = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
-    if (!resp.ok) throw new Error("Erro ViaCEP");
+    if (!resp.ok) throw new Error("Falha ao consultar o ViaCEP.");
 
     const endereco = await resp.json();
     if (endereco.erro) {
-      renderizarErro("CEP não encontrado.");
+      renderizarErro("CEP não encontrado. Tente outro.");
       return;
     }
 
@@ -282,8 +282,10 @@ async function buscarCep() {
 
     renderizarResultado(endereco, coords);
     atualizarMapa(coords, endereco);
-  } catch {
-    renderizarErro("Não foi possível consultar agora. Tente novamente.");
+  } catch (erro) {
+    renderizarErro(
+      "Não foi possível consultar agora. Verifique sua conexão e tente novamente.",
+    );
   }
 }
 
