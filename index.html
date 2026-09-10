@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Consulta de CEP com Mapa</title>
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- Leaflet CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Consulta de CEP</h1>
+      <p>Digite um CEP brasileiro para ver endereço + localização no mapa.</p>
+
+      <div class="busca">
+        <input
+          id="cep-input"
+          type="text"
+          placeholder="Ex: 71931-360"
+          maxlength="9"
+        />
+        <button id="buscar-btn">Buscar</button>
+      </div>
+
+      <section id="resultado" class="resultado"></section>
+
+      <section id="mapa-wrapper" class="mapa-wrapper oculto">
+        <h2>Localização</h2>
+        <div id="mapa"></div>
+      </section>
+    </main>
+
+    <!-- Leaflet JS -->
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script src="script.js"></script>
+  </body>
+</html>
