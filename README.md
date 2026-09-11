@@ -2,61 +2,104 @@
 
 ## Autor
 
-José Guilherme Ferreira dos Santos — Matrícula 22408953
+José Guilherme Ferreira dos Santos
+Matricula: 22408953
 
 ## Descrição
 
-Aplicação web frontend que consulta CEPs brasileiros e exibe informações de endereço (logradouro, bairro, cidade e UF), além de mostrar a localização no mapa com OpenStreetMap (Leaflet).
+Este projeto é uma aplicação web frontend que consulta CEPs brasileiros e exibe:
 
-## API utilizada
+- CEP
+- Logradouro
+- Bairro
+- Cidade
+- Estado (UF)
+- Latitude e Longitude
+- Mapa interativo com marcador (OpenStreetMap)
 
-- **ViaCEP** (dados do endereço por CEP)  
-  Documentação: https://viacep.com.br  
-  Endpoint: `https://viacep.com.br/ws/{cep}/json/`
+A aplicação usa o ViaCEP para buscar os dados do endereço e o Nominatim/OpenStreetMap para converter endereço em coordenadas geográficas.
 
-- **Nominatim / OpenStreetMap** (geocodificação para coordenadas)  
-  Documentação: https://nominatim.org/release-docs/latest/api/Search/  
-  Endpoint base: `https://nominatim.openstreetmap.org/search`
+---
 
 ## Funcionalidades
 
-- Busca de CEP com validação (8 dígitos)
-- Requisição assíncrona com `fetch`
-- Exibição de múltiplas informações do JSON (CEP, logradouro, bairro, cidade, estado)
-- Exibição de latitude e longitude
-- Mapa interativo com marcador (Leaflet + OpenStreetMap)
-- Mapa pode apresentar localização aproximada em alguns CEPs, conforme base cartográfica disponível
-- Tratamento de erros amigável:
+- Validação de CEP (8 dígitos, com ou sem hífen)
+- Consulta assíncrona com `fetch`
+- Exibição de dados completos do endereço
+- Integração com mapa interativo usando Leaflet
+- Marcador de localização no mapa
+- Tratamento de erros:
   - CEP inválido
   - CEP não encontrado
-  - Falha de conexão/API indisponível
-- Indicação de precisão da localização no mapa (alta/média/baixa)
+  - Falha de conexão/API
+- Indicador de precisão da localização (alta, média ou baixa)
 
-## Tecnologias
+---
+
+## Tecnologias utilizadas
 
 - HTML5
 - CSS3
 - JavaScript (ES6+)
-- Leaflet.js
-- OpenStreetMap
+- [ViaCEP](https://viacep.com.br/)
+- [Leaflet](https://leafletjs.com/)
+- [OpenStreetMap](https://www.openstreetmap.org/)
+- [Nominatim](https://nominatim.org/)
+
+---
+
+## Estrutura do projeto
+
+```bash
+consultaCEP/
+├── index.html
+├── style.css
+├── script.js
+└── README.md
+```
+
+---
 
 ## Como executar localmente
 
 1. Clone o repositório:
-   `git clone URL_DO_REPOSITORIO`
-2. Entre na pasta do projeto:
-   `cd bootcamp2-app`
-3. Abra o `index.html` no navegador (ou use a extensão Live Server no VS Code).
 
-## Como publicar no GitHub Pages
+   ```bash
+   git clone https://github.com/joseguilherme01/bootcamp2-app.git
+   ```
 
-1. No GitHub, acesse **Settings** do repositório.
-2. Vá em **Pages**.
-3. Em **Source**, selecione **Deploy from a branch**.
-4. Escolha a branch **main** e pasta **/(root)**.
-5. Salve e aguarde o link público ser gerado.
+2. Acesse a pasta do projeto:
 
-## Links
+   ```bash
+   cd consultaCEP
+   ```
 
-- **Aplicação no ar (GitHub Pages):** https://SEU-USUARIO.github.io/bootcamp2-app/
-- **Repositório público:** https://github.com/SEU-USUARIO/bootcamp2-app
+3. Abra o arquivo `index.html` no navegador  
+   (ou rode com a extensão **Live Server** no VS Code).
+
+---
+
+## Publicação (GitHub Pages)
+
+A aplicação foi publicada com GitHub Pages e está disponível em:
+
+🔗 **https://joseguilherme01.github.io/bootcamp2-app/**
+
+Repositório público:
+
+🔗 **https://github.com/joseguilherme01/bootcamp2-app**
+
+---
+
+## Observação sobre geolocalização
+
+A API ViaCEP fornece dados postais oficiais.  
+Já a posição no mapa depende da base cartográfica do OpenStreetMap/Nominatim e pode variar entre:
+
+- ponto exato da via/região,
+- centro aproximado do CEP,
+- ou aproximação por bairro/cidade em alguns casos.
+
+Por isso, o projeto exibe um indicador de precisão para deixar claro o nível da localização encontrada.
+
+---
