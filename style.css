@@ -95,3 +95,129 @@ p {
   color: #475569;
   margin-top: 4px;
 }
+
+/* ===== Etapa 02: Favoritos ===== */
+
+.btn-favoritar {
+  margin-top: 10px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #f59e0b;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-favoritar:hover {
+  background: #d97706;
+}
+
+.favoritos {
+  margin-top: 28px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 18px;
+}
+
+.aviso-favoritos {
+  min-height: 20px;
+  margin: 4px 0 10px;
+  font-weight: 600;
+}
+
+.aviso-favoritos.ok {
+  color: #15803d;
+}
+
+.aviso-favoritos.info {
+  color: #92400e;
+}
+
+.aviso-favoritos.falha {
+  color: #b91c1c;
+}
+
+.lista-favoritos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lista-favoritos .vazio {
+  color: #64748b;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.item-favorito {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+.info-favorito {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-favorito span {
+  color: #475569;
+  font-size: 14px;
+}
+
+.acoes-favorito {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.acoes-favorito button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.btn-ver {
+  border: 1px solid #2563eb;
+  background: #fff;
+  color: #2563eb;
+}
+
+.btn-ver:hover {
+  background: #eff6ff;
+}
+
+.btn-excluir {
+  border: 1px solid #dc2626;
+  background: #fff;
+  color: #dc2626;
+}
+
+.btn-excluir:hover {
+  background: #fef2f2;
+}
+
+/* Celular: botões descem para baixo do texto */
+@media (max-width: 560px) {
+  .container {
+    margin: 16px;
+    padding: 16px;
+  }
+
+  .item-favorito {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
