@@ -387,17 +387,55 @@ async function listarFavoritos() {
       (f) => `
       <li class="item-favorito">
         <div class="info-favorito">
-          <strong>${f.cep}</strong>
+          <strong>${f.apelido ? `🏷️ ${escaparHtml(f.apelido)}` : f.cep}</strong>
+          ${f.apelido ? `<small>CEP ${f.cep}</small>` : ""}
           <span>${f.logradouro || "Logradouro não informado"}, ${f.bairro || "-"} — ${f.cidade}/${f.uf}</span>
         </div>
         <div class="acoes-favorito">
           <button class="btn-ver" data-cep="${f.cep}">Ver no mapa</button>
+          <button class="btn-editar" data-id="${f.id}" data-apelido="${escaparHtml(f.apelido || "")}">Apelido</button>
           <button class="btn-excluir" data-id="${f.id}">Excluir</button>
         </div>
       </li>
     `,
     )
     .join("");
+}
+
+// Evita que um apelido com caracteres como < ou > quebre a página
+// (o apelido é digitado pelo usuário, então precisa ser tratado)
+function escaparHtml(texto) {
+  return String(texto)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+// UPDATE (versão 1.1) - dá ou altera o apelido de um favorito
+async function editarApelido(id, apelidoAtual) {
+  const novo = prompt(
+    "Digite um apelido para este endereço (ex.: Casa, Trabalho).\nDeixe em branco para remover o apelido:",
+    apelidoAtual,
+  );
+  if (novo === null) return; // usuário clicou em Cancelar
+
+  const apelido = novo.trim().slice(0, 40) || null;
+
+  const { error } = await supabase
+    .from("favoritos_cep")
+    .update({ apelido })
+    .eq("id", id);
+
+  if (error) {
+    console.error("Erro ao atualizar apelido:", error);
+    mostrarAvisoFavoritos("Não foi possível salvar o apelido.", "falha");
+    return;
+  }
+
+  mostrarAvisoFavoritos(apelido ? "Apelido salvo! 🏷️" : "Apelido removido.");
+  listarFavoritos();
 }
 
 // DELETE - remove um favorito pelo id
@@ -436,6 +474,10 @@ listaFavoritos.addEventListener("click", (e) => {
 
   if (botao.classList.contains("btn-excluir")) {
     removerFavorito(botao.dataset.id);
+  }
+
+  if (botao.classList.contains("btn-editar")) {
+    editarApelido(botao.dataset.id, botao.dataset.apelido);
   }
 
   if (botao.classList.contains("btn-ver")) {
