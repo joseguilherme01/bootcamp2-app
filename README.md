@@ -201,7 +201,9 @@ docker run -d -p 8081:80 --name bootcamp-2 joseguilherme01/bootcamp2-app:1.1
 docker ps --filter "name=bootcamp"
 ```
 
-![docker ps com dois containers](prints/sq4-docker-ps.png)
+![docker ps com dois containers](https://raw.githubusercontent.com/joseguilherme01/bootcamp2-app/main/prints/sq4-docker-ps.png)
+
+Print commitado no repositório: https://github.com/joseguilherme01/bootcamp2-app/blob/main/prints/sq4-docker-ps.png
 
 **Se eu tivesse 100 containers, como gerenciaria?**
 
