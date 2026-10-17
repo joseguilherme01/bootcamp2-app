@@ -1,10 +1,29 @@
+// ======================================================
+// SUPABASE (Etapa 02) - conexão com o banco de dados
+// ======================================================
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+// 👇 COLE AQUI a sua URL e a sua chave publishable (anon) do Supabase
+const SUPABASE_URL = "https://uuljzvgfivabvoedrcgx.supabase.co";
+const SUPABASE_KEY = "sb_publishable_WUJgw_4GbXq0UHDxMeo5dg_7pyFs61Q";
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ======================================================
+// ELEMENTOS DA PÁGINA
+// ======================================================
 const inputCep = document.getElementById("cep-input");
 const botaoBuscar = document.getElementById("buscar-btn");
 const areaResultado = document.getElementById("resultado");
 const mapaWrapper = document.getElementById("mapa-wrapper");
+const listaFavoritos = document.getElementById("lista-favoritos");
+const avisoFavoritos = document.getElementById("aviso-favoritos");
 
 let mapa = null;
 let marcador = null;
+
+// Guarda o último endereço encontrado, para o botão "Favoritar" saber o que salvar
+let enderecoAtual = null;
 
 function limparCep(valor) {
   return valor.replace(/\D/g, "");
@@ -27,6 +46,7 @@ function normalizar(txt) {
 }
 
 function renderizarErro(msg) {
+  enderecoAtual = null;
   areaResultado.innerHTML = `<p class="erro">${msg}</p>`;
   mapaWrapper.classList.add("oculto");
 }
@@ -40,6 +60,7 @@ function renderizarResultado(endereco, coords) {
     <p><strong>Estado:</strong> ${endereco.uf}</p>
     <p><strong>Latitude:</strong> ${coords.lat.toFixed(6)} | <strong>Longitude:</strong> ${coords.lon.toFixed(6)}</p>
     <p class="aviso"><strong>Precisão:</strong> ${coords.precisaoTexto}</p>
+    <button id="btn-favoritar" class="btn-favoritar">⭐ Favoritar este CEP</button>
   `;
 }
 
@@ -261,6 +282,7 @@ async function buscarCep() {
 
   areaResultado.innerHTML = "<p>Carregando endereço e mapa...</p>";
   mapaWrapper.classList.add("oculto");
+  enderecoAtual = null;
 
   try {
     const resp = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
@@ -280,6 +302,17 @@ async function buscarCep() {
       return;
     }
 
+    // Guarda os dados no formato das colunas da tabela "favoritos_cep"
+    enderecoAtual = {
+      cep: endereco.cep,
+      logradouro: endereco.logradouro || null,
+      bairro: endereco.bairro || null,
+      cidade: endereco.localidade,
+      uf: endereco.uf,
+      latitude: coords.lat,
+      longitude: coords.lon,
+    };
+
     renderizarResultado(endereco, coords);
     atualizarMapa(coords, endereco);
   } catch (erro) {
@@ -289,7 +322,128 @@ async function buscarCep() {
   }
 }
 
+// ======================================================
+// FAVORITOS (Etapa 02) - CRUD no Supabase
+// ======================================================
+
+function mostrarAvisoFavoritos(texto, tipo = "ok") {
+  avisoFavoritos.textContent = texto;
+  avisoFavoritos.className = `aviso-favoritos ${tipo}`;
+  // some sozinho depois de 4 segundos
+  clearTimeout(mostrarAvisoFavoritos.timer);
+  mostrarAvisoFavoritos.timer = setTimeout(() => {
+    avisoFavoritos.textContent = "";
+  }, 4000);
+}
+
+// CREATE - salva o endereço atual no banco
+async function salvarFavorito() {
+  if (!enderecoAtual) return;
+
+  const { error } = await supabase.from("favoritos_cep").insert(enderecoAtual);
+
+  if (error) {
+    // 23505 = código do PostgreSQL para "valor duplicado" (o CEP é unique)
+    if (error.code === "23505") {
+      mostrarAvisoFavoritos("Esse CEP já está nos seus favoritos.", "info");
+    } else {
+      console.error("Erro ao salvar favorito:", error);
+      mostrarAvisoFavoritos(
+        "Não foi possível salvar agora. Tente novamente.",
+        "falha",
+      );
+    }
+    return;
+  }
+
+  mostrarAvisoFavoritos("CEP salvo nos favoritos! ⭐");
+  listarFavoritos();
+}
+
+// READ - busca todos os favoritos e desenha a lista
+async function listarFavoritos() {
+  listaFavoritos.innerHTML = "<li class='vazio'>Carregando favoritos...</li>";
+
+  const { data, error } = await supabase
+    .from("favoritos_cep")
+    .select("*")
+    .order("criado_em", { ascending: false });
+
+  if (error) {
+    console.error("Erro ao listar favoritos:", error);
+    listaFavoritos.innerHTML =
+      "<li class='vazio erro'>Não foi possível carregar os favoritos.</li>";
+    return;
+  }
+
+  if (data.length === 0) {
+    listaFavoritos.innerHTML =
+      "<li class='vazio'>Nenhum favorito ainda. Busque um CEP e clique em ⭐ Favoritar.</li>";
+    return;
+  }
+
+  listaFavoritos.innerHTML = data
+    .map(
+      (f) => `
+      <li class="item-favorito">
+        <div class="info-favorito">
+          <strong>${f.cep}</strong>
+          <span>${f.logradouro || "Logradouro não informado"}, ${f.bairro || "-"} — ${f.cidade}/${f.uf}</span>
+        </div>
+        <div class="acoes-favorito">
+          <button class="btn-ver" data-cep="${f.cep}">Ver no mapa</button>
+          <button class="btn-excluir" data-id="${f.id}">Excluir</button>
+        </div>
+      </li>
+    `,
+    )
+    .join("");
+}
+
+// DELETE - remove um favorito pelo id
+async function removerFavorito(id) {
+  if (!confirm("Remover este CEP dos favoritos?")) return;
+
+  const { error } = await supabase.from("favoritos_cep").delete().eq("id", id);
+
+  if (error) {
+    console.error("Erro ao excluir favorito:", error);
+    mostrarAvisoFavoritos("Não foi possível excluir agora.", "falha");
+    return;
+  }
+
+  mostrarAvisoFavoritos("Favorito removido.");
+  listarFavoritos();
+}
+
+// ======================================================
+// EVENTOS
+// ======================================================
 botaoBuscar.addEventListener("click", buscarCep);
 inputCep.addEventListener("keydown", (e) => {
   if (e.key === "Enter") buscarCep();
 });
+
+// O botão "Favoritar" é criado a cada busca, então escutamos o clique
+// na área de resultado inteira (delegação de eventos)
+areaResultado.addEventListener("click", (e) => {
+  if (e.target.id === "btn-favoritar") salvarFavorito();
+});
+
+// Mesmo truque para os botões de cada item da lista
+listaFavoritos.addEventListener("click", (e) => {
+  const botao = e.target;
+
+  if (botao.classList.contains("btn-excluir")) {
+    removerFavorito(botao.dataset.id);
+  }
+
+  if (botao.classList.contains("btn-ver")) {
+    inputCep.value = botao.dataset.cep;
+    buscarCep();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+});
+
+// Carrega os favoritos assim que a página abre
+listarFavoritos();
