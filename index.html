@@ -35,6 +35,13 @@
         <h2>Localização</h2>
         <div id="mapa"></div>
       </section>
+
+      <!-- NOVO (Etapa 02): lista de favoritos salva no banco (Supabase) -->
+      <section class="favoritos">
+        <h2>⭐ Meus favoritos</h2>
+        <p id="aviso-favoritos" class="aviso-favoritos"></p>
+        <ul id="lista-favoritos" class="lista-favoritos"></ul>
+      </section>
     </main>
 
     <!-- Leaflet JS -->
@@ -43,6 +50,8 @@
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""
     ></script>
-    <script src="script.js"></script>
+
+    <!-- type="module" é necessário para usar o "import" do Supabase -->
+    <script type="module" src="script.js"></script>
   </body>
 </html>
